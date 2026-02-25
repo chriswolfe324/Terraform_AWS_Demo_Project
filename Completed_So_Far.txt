@@ -1,0 +1,5 @@
+2-25-2026
+- created main.tf, variables.tf, and providers.tf
+- set the TF and AWS versions
+- initialized the terraform directory
+- created a VPC
