@@ -3,3 +3,7 @@
 - set the TF and AWS versions
 - initialized the terraform directory
 - created a VPC
+
+2-26-2026
+- added two public subnets
+- added two private subnets
