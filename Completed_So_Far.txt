@@ -8,4 +8,6 @@
 - added two public subnets
 - added two private subnets
 - added internet gateway
+- added route table
+- added route to internet
 
