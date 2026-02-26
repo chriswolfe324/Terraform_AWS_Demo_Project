@@ -10,4 +10,5 @@
 - added internet gateway
 - added route table
 - added route to internet
+- added route table associations for public1 and public2
 
