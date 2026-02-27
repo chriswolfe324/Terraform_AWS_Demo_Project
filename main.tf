@@ -77,3 +77,20 @@ resource "aws_route_table_association" "public2" {
   subnet_id      = aws_subnet.public2.id
   route_table_id = aws_route_table.main.id
 }
+
+resource "aws_eip" "nat_eip" {
+  tags = {
+    Name    = "Project NAT EIP"
+    Project = "Terraform and AWS Demo"
+  }
+}
+
+resource "aws_nat_gateway" "nat_gateway" {
+  allocation_id = aws_eip.nat_eip.allocation_id
+  subnet_id     = aws_subnet.public1.id
+
+  tags = {
+    Name    = "Project Nat Gateway"
+    Project = "Terraform and AWS Demo"
+  }
+}
