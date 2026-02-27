@@ -9,10 +9,10 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = var.project_region
   default_tags {
     tags = {
-      Project = "Terraform and AWS Demo"
+      Project = var.project_tag_name
     }
   }
 }

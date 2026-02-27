@@ -16,3 +16,4 @@
 - added NAT gateway and elastic IP
 - added private route table
 - added route table associations for private1 and private2
+- moved a few hardcoded values into variables
