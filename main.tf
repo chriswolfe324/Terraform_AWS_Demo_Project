@@ -53,29 +53,29 @@ resource "aws_internet_gateway" "gateway" {
   }
 }
 
-resource "aws_route_table" "main" {
+resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name    = "Demo Project Route Table"
+    Name    = "Demo Public Route Table"
     Project = "Terraform and AWS Demo"
   }
 }
 
-resource "aws_route" "route" {
-  route_table_id         = aws_route_table.main.id
+resource "aws_route" "public_route" {
+  route_table_id         = aws_route_table.public_rt.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.gateway.id
 }
 
 resource "aws_route_table_association" "public1" {
   subnet_id      = aws_subnet.public1.id
-  route_table_id = aws_route_table.main.id
+  route_table_id = aws_route_table.public_rt.id
 }
 
 resource "aws_route_table_association" "public2" {
   subnet_id      = aws_subnet.public2.id
-  route_table_id = aws_route_table.main.id
+  route_table_id = aws_route_table.public_rt.id
 }
 
 resource "aws_eip" "nat_eip" {
@@ -93,4 +93,29 @@ resource "aws_nat_gateway" "nat_gateway" {
     Name    = "Project Nat Gateway"
     Project = "Terraform and AWS Demo"
   }
+}
+
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name    = "Demo Private Route Table"
+    Project = "Terraform and AWS Demo"
+  }
+}
+
+resource "aws_route" "private_route" {
+  route_table_id         = aws_route_table.private_rt.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.nat_gateway.id
+}
+
+resource "aws_route_table_association" "private1" {
+  subnet_id      = aws_subnet.private1.id
+  route_table_id = aws_route_table.private_rt.id
+}
+
+resource "aws_route_table_association" "private2" {
+  subnet_id      = aws_subnet.private2.id
+  route_table_id = aws_route_table.private_rt.id
 }

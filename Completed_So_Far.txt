@@ -8,9 +8,11 @@
 - added two public subnets
 - added two private subnets
 - added internet gateway
-- added route table
+- added public route table
 - added route to internet
 - added route table associations for public1 and public2
 
 2-27-2026
 - added NAT gateway and elastic IP
+- added private route table
+- added route table associations for private1 and private2
