@@ -119,3 +119,122 @@ resource "aws_route_table_association" "private2" {
   subnet_id      = aws_subnet.private2.id
   route_table_id = aws_route_table.private_rt.id
 }
+
+resource "aws_security_group" "public_entry" {
+  name   = "Public_Entry"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.app_servers.id]
+  }
+
+  tags = {
+    Name    = "Public_Entry"
+    Project = var.project_tag_name
+  }
+}
+
+resource "aws_security_group" "app_servers" {
+  name   = "App_Servers"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.public_entry.id]
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.database.id]
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.background_workers.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name    = "App_Servers"
+    Project = var.project_tag_name
+  }
+}
+
+resource "aws_security_group" "database" {
+  name   = "MongoDB"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.app_servers.id]
+  }
+
+  ingress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.background_workers.id]
+  }
+
+  tags = {
+    Name    = "MongoDB"
+    Project = var.project_tag_name
+  }
+}
+
+resource "aws_security_group" "background_workers" {
+  name   = "Background_Workers"
+  vpc_id = aws_vpc.main.id
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.database.id]
+  }
+
+  #placeholder for storage rule
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.app_servers.id]
+  }
+
+  tags = {
+    Name    = "Background_Workers"
+    Project = var.project_tag_name
+  }
+}

@@ -17,3 +17,6 @@
 - added private route table
 - added route table associations for private1 and private2
 - moved a few hardcoded values into variables
+
+2-28-2026
+- added 4 security groups and rules (public_entry, app_servers, database, and background_workers)
