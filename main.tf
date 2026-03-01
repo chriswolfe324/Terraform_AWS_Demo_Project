@@ -124,27 +124,6 @@ resource "aws_security_group" "public_entry" {
   name   = "Public_Entry"
   vpc_id = aws_vpc.main.id
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.app_servers.id]
-  }
-
   tags = {
     Name    = "Public_Entry"
     Project = var.project_tag_name
@@ -154,34 +133,6 @@ resource "aws_security_group" "public_entry" {
 resource "aws_security_group" "app_servers" {
   name   = "App_Servers"
   vpc_id = aws_vpc.main.id
-
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.public_entry.id]
-  }
-
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.database.id]
-  }
-
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.background_workers.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   tags = {
     Name    = "App_Servers"
@@ -193,20 +144,6 @@ resource "aws_security_group" "database" {
   name   = "MongoDB"
   vpc_id = aws_vpc.main.id
 
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.app_servers.id]
-  }
-
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.background_workers.id]
-  }
-
   tags = {
     Name    = "MongoDB"
     Project = var.project_tag_name
@@ -217,24 +154,102 @@ resource "aws_security_group" "background_workers" {
   name   = "Background_Workers"
   vpc_id = aws_vpc.main.id
 
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.database.id]
-  }
-
-  #placeholder for storage rule
-
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.app_servers.id]
-  }
-
   tags = {
     Name    = "Background_Workers"
     Project = var.project_tag_name
   }
 }
+
+
+# this rule allows internet traffic in to public_entry
+resource "aws_security_group_rule" "public_entry_http" {
+  type              = "ingress"
+  security_group_id = aws_security_group.public_entry.id
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+
+}
+
+# this rule allows internet traffic in to public_entry
+resource "aws_security_group_rule" "public_entry_https" {
+  type              = "ingress"
+  security_group_id = aws_security_group.public_entry.id
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+# this rule allows public_entry to communicate with app_servers
+resource "aws_security_group_rule" "public_entry_to_app" {
+  type                     = "egress"
+  security_group_id        = aws_security_group.public_entry.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.app_servers.id
+}
+
+# this rule allows app_servers to communicate with public_entry
+resource "aws_security_group_rule" "app_to_public_entry" {
+  type                     = "ingress"
+  security_group_id        = aws_security_group.app_servers.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.public_entry.id
+}
+
+# this rule allows app_servers to communicate with database
+resource "aws_security_group_rule" "app_to_database" {
+  type                     = "egress"
+  security_group_id        = aws_security_group.app_servers.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.database.id
+}
+
+# this rule allows app_servers to communicate with background_workers
+resource "aws_security_group_rule" "app_to_workers" {
+  type                     = "egress"
+  security_group_id        = aws_security_group.app_servers.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.background_workers.id
+}
+
+# this rule allows app_servers out to internet
+resource "aws_security_group_rule" "app_to_external" {
+  type              = "egress"
+  security_group_id = aws_security_group.app_servers.id
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+# this rule allows background_workers to communicate with database
+resource "aws_security_group_rule" "to_database_from_workers" {
+  type                     = "ingress"
+  security_group_id        = aws_security_group.database.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.background_workers.id
+}
+
+# this rule allows app_servers to communicate with database
+resource "aws_security_group_rule" "from_app_to_database" {
+  type                     = "ingress"
+  security_group_id        = aws_security_group.database.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.app_servers.id
+}
+
+#placeholder for background_worker/storage rule
