@@ -311,3 +311,97 @@ resource "aws_s3_bucket_lifecycle_configuration" "project_bucket_lifecycle" {
     }
   }
 }
+
+#-----------------------------------------------------------
+#-----------------------------------------------------------
+
+resource "aws_iam_policy" "app_policy" {
+  name        = "app_policy"
+  path        = "/"
+  description = "Policy for application servers"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_s3_bucket.project_bucket.arn}/*"
+      },
+      {
+        Action = [
+          "s3:PutObject",
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_s3_bucket.project_bucket.arn}/*"
+      }
+    ]
+  })
+}
+
+
+resource "aws_iam_policy" "worker_policy" {
+  name        = "worker_policy"
+  path        = "/"
+  description = "Policy for background_workers"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:PutObject",
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_s3_bucket.project_bucket.arn}/*"
+      },
+    ]
+  })
+}
+
+
+resource "aws_iam_role" "app_server_role" {
+  name = "app_server_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    Project = var.project_tag_name
+  }
+}
+
+resource "aws_iam_role" "background_workers_role" {
+  name = "background_workers_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    Project = var.project_tag_name
+  }
+}

@@ -24,3 +24,4 @@
 
 3-1-2026
 - created an s3 bucket, blocked public access, enabled versioning, and created lifecycle rules
+- created IAM policies for app_servers and background_workers
