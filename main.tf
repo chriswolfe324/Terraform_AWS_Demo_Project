@@ -253,3 +253,61 @@ resource "aws_security_group_rule" "from_app_to_database" {
 }
 
 #placeholder for background_worker/storage rule
+
+
+
+
+# --------------------------S3 Bucket---------------------------------
+resource "aws_s3_bucket" "project_bucket" {
+  bucket = "chrislw324demoprojectbucket"
+  tags = {
+    Name    = "Project_Bucket"
+    Project = var.project_tag_name
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "project_bucket_access" {
+  bucket = aws_s3_bucket.project_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_versioning" "project_bucket_versioning" {
+  bucket = aws_s3_bucket.project_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "project_bucket_lifecycle" {
+  bucket = aws_s3_bucket.project_bucket.id
+
+  rule {
+    id     = "move to IA"
+    status = "Enabled"
+    transition {
+      days          = 1
+      storage_class = "STANDARD_IA"
+    }
+  }
+
+  rule {
+    id     = "move to glacier"
+    status = "Enabled"
+    transition {
+      days          = 3
+      storage_class = "DEEP_ARCHIVE"
+    }
+  }
+
+  rule {
+    id     = "delete after 10 days"
+    status = "Enabled"
+    expiration {
+      days = 10
+    }
+  }
+}
