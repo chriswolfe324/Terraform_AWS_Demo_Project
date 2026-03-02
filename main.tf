@@ -455,3 +455,57 @@ resource "aws_iam_role_policy_attachment" "background_worker_attachment" {
   role       = aws_iam_role.background_workers_role.name
   policy_arn = aws_iam_policy.worker_policy.arn
 }
+
+resource "aws_iam_instance_profile" "app_instance_profile" {
+  name = "app_instance_profile"
+  role = aws_iam_role.app_server_role.name
+}
+
+
+
+
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+resource "aws_launch_template" "app_server_launch_template" {
+  name = "app_server_launch_template"
+
+  #be able to stop/terminate the instance from the console
+  disable_api_stop        = false
+  disable_api_termination = false
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.app_instance_profile.name
+  }
+
+  image_id = "ami-0f3caa1cf4417e51b"
+
+  instance_initiated_shutdown_behavior = "terminate"
+
+  instance_type = "t3.micro"
+
+  key_name = "book-app-key" # you need to create this keypair
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    instance_metadata_tags      = "enabled"
+    http_protocol_ipv6          = "disabled"
+  }
+
+  monitoring {
+    enabled = true
+  }
+
+  vpc_security_group_ids = [aws_security_group.app_servers.id]
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name    = "Book-App-Server"
+      Project = var.project_tag_name
+    }
+  }
+
+  # user_data = filebase64("${path.module}/example.sh")  Change this
+}
