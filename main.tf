@@ -289,7 +289,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "project_bucket_lifecycle" {
     id     = "move to IA"
     status = "Enabled"
     transition {
-      days          = 1
+      days          = 30
       storage_class = "STANDARD_IA"
     }
   }
@@ -298,7 +298,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "project_bucket_lifecycle" {
     id     = "move to glacier"
     status = "Enabled"
     transition {
-      days          = 3
+      days          = 35
       storage_class = "DEEP_ARCHIVE"
     }
   }
@@ -307,7 +307,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "project_bucket_lifecycle" {
     id     = "delete after 10 days"
     status = "Enabled"
     expiration {
-      days = 10
+      days = 40
     }
   }
 }
@@ -404,4 +404,15 @@ resource "aws_iam_role" "background_workers_role" {
   tags = {
     Project = var.project_tag_name
   }
+}
+
+resource "aws_iam_role_policy_attachment" "app_server_attachment" {
+  role       = aws_iam_role.app_server_role.name
+  policy_arn = aws_iam_policy.app_policy.arn
+}
+
+
+resource "aws_iam_role_policy_attachment" "background_worker_attachment" {
+  role       = aws_iam_role.background_workers_role.name
+  policy_arn = aws_iam_policy.worker_policy.arn
 }
