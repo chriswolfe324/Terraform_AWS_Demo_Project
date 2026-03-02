@@ -10,8 +10,9 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "public1" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.public1_subnet_cidr
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public1_subnet_cidr
+  availability_zone = "us-east-1a"
   tags = {
     Name    = "Public Subnet 1"
     Project = var.project_tag_name
@@ -19,8 +20,9 @@ resource "aws_subnet" "public1" {
 }
 
 resource "aws_subnet" "public2" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.public2_subnet_cidr
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public2_subnet_cidr
+  availability_zone = "us-east-1b"
   tags = {
     Name    = "Public Subnet 2"
     Project = var.project_tag_name
@@ -28,8 +30,9 @@ resource "aws_subnet" "public2" {
 }
 
 resource "aws_subnet" "private1" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.private1_subnet_cidr
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private1_subnet_cidr
+  availability_zone = "us-east-1a"
   tags = {
     Name    = "Private Subnet 1"
     Project = var.project_tag_name
@@ -37,8 +40,9 @@ resource "aws_subnet" "private1" {
 }
 
 resource "aws_subnet" "private2" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.private2_subnet_cidr
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private2_subnet_cidr
+  availability_zone = "us-east-1b"
   tags = {
     Name    = "Private Subnet 2"
     Project = var.project_tag_name

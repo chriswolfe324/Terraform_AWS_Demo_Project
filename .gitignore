@@ -24,3 +24,8 @@ terraform.rc
 
 # Terraform plan output
 *.tfplan
+
+# Other files
+main.tf.copy
+project_readme.txt
+todo.txt
