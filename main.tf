@@ -8,6 +8,12 @@ resource "aws_vpc" "main" {
     Project = var.project_tag_name
   }
 }
+# -----------------------------------------------------------------
+# -Two public subnets for HA
+# -public1: app load balancer and NAT gateway
+# -public2: app load balancer
+# -these are the only things that need to be in the public
+# -NAT gateway allows private subnet resources to get out to internet
 
 resource "aws_subnet" "public1" {
   vpc_id            = aws_vpc.main.id
@@ -28,6 +34,10 @@ resource "aws_subnet" "public2" {
     Project = var.project_tag_name
   }
 }
+# -----------------------------------------------------------------
+# -2 private subnets for HA
+# -private1: EC2 app server(s), possibly MongoDB, possibly fargate  tasks
+# -private2: EC2 app server(s), possibly fargate  tasks
 
 resource "aws_subnet" "private1" {
   vpc_id            = aws_vpc.main.id
@@ -49,6 +59,9 @@ resource "aws_subnet" "private2" {
   }
 }
 
+# -----------------------------------------------------------------
+# -attaches to the VPC itself
+
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.main.id
   tags = {
@@ -56,7 +69,7 @@ resource "aws_internet_gateway" "gateway" {
     Project = var.project_tag_name
   }
 }
-
+# -----------------------------------------------------------------
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
@@ -66,12 +79,15 @@ resource "aws_route_table" "public_rt" {
   }
 }
 
+#any traffic going anywhere on the internet, send it to the internet gateway
 resource "aws_route" "public_route" {
   route_table_id         = aws_route_table.public_rt.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.gateway.id
 }
 
+# -----------------------------------------------------------------
+# - these attach the route tables to your public subnets
 resource "aws_route_table_association" "public1" {
   subnet_id      = aws_subnet.public1.id
   route_table_id = aws_route_table.public_rt.id
@@ -82,6 +98,8 @@ resource "aws_route_table_association" "public2" {
   route_table_id = aws_route_table.public_rt.id
 }
 
+# -----------------------------------------------------------------
+# - creates the public ip address
 resource "aws_eip" "nat_eip" {
   tags = {
     Name    = "Project NAT EIP"
@@ -89,6 +107,8 @@ resource "aws_eip" "nat_eip" {
   }
 }
 
+# -----------------------------------------------------------------
+# - creates the NAT gateway and attaches it to public1 subnet
 resource "aws_nat_gateway" "nat_gateway" {
   allocation_id = aws_eip.nat_eip.allocation_id
   subnet_id     = aws_subnet.public1.id
@@ -99,6 +119,8 @@ resource "aws_nat_gateway" "nat_gateway" {
   }
 }
 
+# -----------------------------------------------------------------
+# -creates the private route table
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
 
@@ -108,12 +130,16 @@ resource "aws_route_table" "private_rt" {
   }
 }
 
+# -----------------------------------------------------------------
+# -for any traffic heading to the internet, send it to the NAT gateway
 resource "aws_route" "private_route" {
   route_table_id         = aws_route_table.private_rt.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.nat_gateway.id
 }
 
+# -----------------------------------------------------------------
+# -associating the route tables with the private subnets
 resource "aws_route_table_association" "private1" {
   subnet_id      = aws_subnet.private1.id
   route_table_id = aws_route_table.private_rt.id
@@ -123,6 +149,12 @@ resource "aws_route_table_association" "private2" {
   subnet_id      = aws_subnet.private2.id
   route_table_id = aws_route_table.private_rt.id
 }
+
+# -----------------------------------------------------------------
+# -----------------------------------------------------------------
+# -----------------------------------------------------------------
+# -----------------------------------------------------------------
+# - defining the security groups
 
 resource "aws_security_group" "public_entry" {
   name   = "Public_Entry"
@@ -164,7 +196,8 @@ resource "aws_security_group" "background_workers" {
   }
 }
 
-
+# -----------------------------------------------------------------
+# -----------------------------------------------------------------
 # this rule allows internet traffic in to public_entry
 resource "aws_security_group_rule" "public_entry_http" {
   type              = "ingress"
@@ -195,7 +228,8 @@ resource "aws_security_group_rule" "public_entry_to_app" {
   protocol                 = "-1"
   source_security_group_id = aws_security_group.app_servers.id
 }
-
+# -----------------------------------------------------------------
+# -----------------------------------------------------------------
 # this rule allows app_servers to communicate with public_entry
 resource "aws_security_group_rule" "app_to_public_entry" {
   type                     = "ingress"
@@ -226,7 +260,7 @@ resource "aws_security_group_rule" "app_to_workers" {
   source_security_group_id = aws_security_group.background_workers.id
 }
 
-# this rule allows app_servers out to internet
+# this rule allows app_servers out to internet via NAT gateway
 resource "aws_security_group_rule" "app_to_external" {
   type              = "egress"
   security_group_id = aws_security_group.app_servers.id
@@ -235,18 +269,9 @@ resource "aws_security_group_rule" "app_to_external" {
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
 }
-
-# this rule allows background_workers to communicate with database
-resource "aws_security_group_rule" "to_database_from_workers" {
-  type                     = "ingress"
-  security_group_id        = aws_security_group.database.id
-  from_port                = 0
-  to_port                  = 0
-  protocol                 = "-1"
-  source_security_group_id = aws_security_group.background_workers.id
-}
-
-# this rule allows app_servers to communicate with database
+# -----------------------------------------------------------------
+# -----------------------------------------------------------------
+# this rule allows database to accept traffic from app_servers
 resource "aws_security_group_rule" "from_app_to_database" {
   type                     = "ingress"
   security_group_id        = aws_security_group.database.id
@@ -256,11 +281,21 @@ resource "aws_security_group_rule" "from_app_to_database" {
   source_security_group_id = aws_security_group.app_servers.id
 }
 
+# this rule allows database to accept traffic from background_workers
+resource "aws_security_group_rule" "from_workers_to_database" {
+  type                     = "ingress"
+  security_group_id        = aws_security_group.database.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.background_workers.id
+}
+
 #placeholder for background_worker/storage rule
 
-
-
-
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
 # --------------------------S3 Bucket---------------------------------
 resource "aws_s3_bucket" "project_bucket" {
   bucket = "chrislw324demoprojectbucket"

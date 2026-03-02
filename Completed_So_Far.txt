@@ -28,4 +28,4 @@
 
 3-2-2026
 - attached the policies to the roles for app_servers and background_workers
-
+- Organized main.tf a bit and added some helpful comments
