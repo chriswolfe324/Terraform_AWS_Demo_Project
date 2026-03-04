@@ -548,3 +548,21 @@ resource "aws_lb_target_group" "Project_Target_Group" {
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
 }
+
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#Applicaton Load Balancer
+
+resource "aws_lb" "Project_Load_Balancer" {
+  name               = "Project_Load_Balancer"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.public_entry.id]
+  subnets            = [aws_subnet.public1.id, aws_subnet.public2.id]
+
+  enable_deletion_protection = false
+
+  tags = {
+    Project = var.project_tag_name
+  }
+}
