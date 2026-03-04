@@ -590,3 +590,19 @@ resource "aws_autoscaling_attachment" "project_attachment" {
   autoscaling_group_name = aws_autoscaling_group.project_ASG.name
   lb_target_group_arn    = aws_lb_target_group.Project_Target_Group.arn
 }
+
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#Scaling Policies
+
+resource "aws_autoscaling_policy" "project_policy" {
+  autoscaling_group_name = aws_autoscaling_group.project_ASG.name
+  name                   = "project_policy"
+  policy_type            = "TargetTrackingScaling"
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = 80.0
+  }
+}

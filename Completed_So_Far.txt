@@ -37,3 +37,4 @@
 - created the public load balancer
 - created load balancer listener
 - connect auto scaling group to the target group
+- created the auto scaling policy
