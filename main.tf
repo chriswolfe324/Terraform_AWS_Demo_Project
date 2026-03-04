@@ -582,3 +582,11 @@ resource "aws_lb_listener" "Project_Listener" {
   }
 }
 
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#Connect Auto Scaling Group to Target Group
+
+resource "aws_autoscaling_attachment" "project_attachment" {
+  autoscaling_group_name = aws_autoscaling_group.project_ASG.name
+  lb_target_group_arn    = aws_lb_target_group.Project_Target_Group.arn
+}
