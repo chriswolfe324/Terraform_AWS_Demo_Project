@@ -30,3 +30,6 @@
 - attached the policies to the roles for app_servers and background_workers
 - Organized main.tf a bit and added some helpful comments
 - created app server launch template
+
+3-4-2026
+- created the Auto Scaling Group

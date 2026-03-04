@@ -461,9 +461,6 @@ resource "aws_iam_instance_profile" "app_instance_profile" {
   role = aws_iam_role.app_server_role.name
 }
 
-
-
-
 #-----------------------------------------------------------------
 #-----------------------------------------------------------------
 resource "aws_launch_template" "app_server_launch_template" {
@@ -506,6 +503,37 @@ resource "aws_launch_template" "app_server_launch_template" {
       Project = var.project_tag_name
     }
   }
-
   # user_data = filebase64("${path.module}/example.sh")  Change this
+}
+
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#Auto scale group
+
+resource "aws_autoscaling_group" "project_ASG" {
+  name                      = "project_ASG"
+  max_size                  = 4
+  min_size                  = 2
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  desired_capacity          = 2
+  force_delete              = true
+  vpc_zone_identifier       = [aws_subnet.private1.id, aws_subnet.private2.id]
+
+  launch_template {
+    id      = aws_launch_template.app_server_launch_template.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "Project_ASG"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "Project"
+    value               = var.project_tag_name
+    propagate_at_launch = true
+  }
 }
