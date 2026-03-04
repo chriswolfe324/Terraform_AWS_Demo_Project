@@ -38,3 +38,4 @@
 - created load balancer listener
 - connect auto scaling group to the target group
 - created the auto scaling policy
+- created the book-app-key keypair

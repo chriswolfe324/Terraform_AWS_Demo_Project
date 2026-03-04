@@ -508,6 +508,22 @@ resource "aws_launch_template" "app_server_launch_template" {
 
 #-----------------------------------------------------------------
 #-----------------------------------------------------------------
+#Project Key-Pair
+
+resource "aws_key_pair" "project_key_pair" {
+  key_name   = "book-app-key"
+  public_key = file("~/.ssh/book-app-key.pub")
+
+  tags = {
+    Project = var.project_tag_name
+  }
+}
+
+
+
+
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
 #Auto scale group
 
 resource "aws_autoscaling_group" "project_ASG" {
@@ -543,7 +559,7 @@ resource "aws_autoscaling_group" "project_ASG" {
 #Target Group
 
 resource "aws_lb_target_group" "Project_Target_Group" {
-  name     = "Project_Target_Group"
+  name     = "Project-Target-Group"
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
@@ -554,7 +570,7 @@ resource "aws_lb_target_group" "Project_Target_Group" {
 #Applicaton Load Balancer
 
 resource "aws_lb" "Project_Load_Balancer" {
-  name               = "Project_Load_Balancer"
+  name               = "Project-Load-Balancer"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.public_entry.id]
