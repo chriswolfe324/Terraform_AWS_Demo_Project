@@ -33,3 +33,4 @@
 
 3-4-2026
 - created the Auto Scaling Group
+- created the target group

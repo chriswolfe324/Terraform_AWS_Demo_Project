@@ -537,3 +537,14 @@ resource "aws_autoscaling_group" "project_ASG" {
     propagate_at_launch = true
   }
 }
+
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#Target Group
+
+resource "aws_lb_target_group" "Project_Target_Group" {
+  name     = "Project_Target_Group"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+}
