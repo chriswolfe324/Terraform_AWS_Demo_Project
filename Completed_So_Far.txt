@@ -39,3 +39,6 @@
 - connect auto scaling group to the target group
 - created the auto scaling policy
 - created the book-app-key keypair
+
+3-6-2026
+- created IAM role for lambda function

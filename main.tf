@@ -380,6 +380,32 @@ resource "aws_iam_policy" "app_policy" {
   })
 }
 
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "lambda_policy"
+  path        = "/"
+  description = "Policy for lambda function"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ecs:RunTask",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Action = [
+          "iam:PassRole",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 
 resource "aws_iam_policy" "worker_policy" {
   name        = "worker_policy"
@@ -423,6 +449,28 @@ resource "aws_iam_role" "app_server_role" {
   }
 }
 
+resource "aws_iam_role" "lambda_function_role" {
+  name = "lambda_function_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    Project = var.project_tag_name
+  }
+}
+
 resource "aws_iam_role" "background_workers_role" {
   name = "background_workers_role"
 
@@ -450,6 +498,10 @@ resource "aws_iam_role_policy_attachment" "app_server_attachment" {
   policy_arn = aws_iam_policy.app_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_function_attachment" {
+  role       = aws_iam_role.lambda_function_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
 
 resource "aws_iam_role_policy_attachment" "background_worker_attachment" {
   role       = aws_iam_role.background_workers_role.name
@@ -622,3 +674,7 @@ resource "aws_autoscaling_policy" "project_policy" {
     target_value = 80.0
   }
 }
+
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#Lambda
