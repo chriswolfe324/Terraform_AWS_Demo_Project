@@ -42,3 +42,4 @@
 
 3-6-2026
 - created IAM role for lambda function
+- created a placeholder lambda function

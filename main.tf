@@ -678,3 +678,55 @@ resource "aws_autoscaling_policy" "project_policy" {
 #-----------------------------------------------------------------
 #-----------------------------------------------------------------
 #Lambda
+
+# Package the Lambda function code
+data "archive_file" "lambda_file" {
+  type        = "zip"
+  source_file = "${path.module}/lambda/start_worker.js"
+  output_path = "${path.module}/lambda/function.zip"
+}
+
+# Lambda function
+resource "aws_lambda_function" "project_lambda_function" {
+  filename      = data.archive_file.lambda_file.output_path
+  function_name = "project_lambda_function"
+  role          = aws_iam_role.lambda_function_role.arn
+  handler       = "start_worker.handler"
+  code_sha256   = data.archive_file.lambda_file.output_base64sha256
+
+  runtime = "nodejs20.x"
+
+  tags = {
+    Project = var.project_tag_name
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
