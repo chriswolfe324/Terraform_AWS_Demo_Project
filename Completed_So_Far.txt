@@ -47,4 +47,4 @@
 3-7-2026
 - created the ECS cluster
 - created ECS task execution role and attached it
-
+- created the task definition

@@ -487,7 +487,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
       },
     ]
   })
-    tags = {
+  tags = {
     Project = var.project_tag_name
   }
 }
@@ -526,7 +526,7 @@ resource "aws_iam_role_policy_attachment" "lambda_function_attachment" {
 
 resource "aws_iam_role_policy_attachment" "task_execution_attachment" {
   role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = aws_iam_policy.ecs_task_execution_role.arn
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 resource "aws_iam_role_policy_attachment" "background_worker_attachment" {
@@ -738,6 +738,27 @@ resource "aws_ecs_cluster" "project_ecs_cluster" {
     name  = "containerInsights"
     value = "enabled"
   }
+
+  tags = {
+    Project = var.project_tag_name
+  }
+}
+
+resource "aws_ecs_task_definition" "book_report_worker" {
+  family                   = "book_report_worker"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = 256
+  memory                   = 512
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.background_workers_role.arn
+  container_definitions = jsonencode([
+    {
+      name      = "report-worker"
+      image     = "public.ecr.aws/docker/library/node:20" # placeholder
+      essential = true
+    },
+  ])
 
   tags = {
     Project = var.project_tag_name
