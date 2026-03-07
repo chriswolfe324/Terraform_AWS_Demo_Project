@@ -701,9 +701,22 @@ resource "aws_lambda_function" "project_lambda_function" {
   }
 }
 
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#ECS Cluster
 
+resource "aws_ecs_cluster" "project_ecs_cluster" {
+  name = "project-ecs-cluster"
 
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 
+  tags = {
+    Project = var.project_tag_name
+  }
+}
 
 
 
