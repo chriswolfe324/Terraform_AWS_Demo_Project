@@ -52,3 +52,5 @@
 3-11-2026
 - created the docdb subnet group
 - created the cluster and cluster instance
+- switched from documentDB to RDS due to a free plan restriction
+

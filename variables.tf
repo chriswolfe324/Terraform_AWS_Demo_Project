@@ -30,6 +30,6 @@ variable "private2_subnet_cidr" {
   type = string
 }
 
-variable "docdb_master_password" {
+variable "db_master_password" {
   type = string
 }
