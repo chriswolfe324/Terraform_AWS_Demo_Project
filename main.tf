@@ -36,7 +36,7 @@ resource "aws_subnet" "public2" {
 }
 # -----------------------------------------------------------------
 # -2 private subnets for HA
-# -private1: EC2 app server(s), possibly MongoDB, possibly fargate  tasks
+# -private1: EC2 app server(s), possibly RDS, possibly fargate  tasks
 # -private2: EC2 app server(s), possibly fargate  tasks
 
 resource "aws_subnet" "private1" {
@@ -177,11 +177,11 @@ resource "aws_security_group" "app_servers" {
 }
 
 resource "aws_security_group" "database" {
-  name   = "MongoDB"
+  name   = "RDS"
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name    = "MongoDB"
+    Name    = "RDS"
     Project = var.project_tag_name
   }
 }
@@ -766,7 +766,7 @@ resource "aws_ecs_task_definition" "book_report_worker" {
 
 #-----------------------------------------------------------------
 #-----------------------------------------------------------------
-#MongoDB
+#RDS
 
 resource "aws_docdb_subnet_group" "project_subnet_group" {
   name       = "project_subnet_group"
