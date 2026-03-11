@@ -48,3 +48,6 @@
 - created the ECS cluster
 - created ECS task execution role and attached it
 - created the task definition
+
+3-11-2026
+- created the docdb subnet group

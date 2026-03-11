@@ -765,14 +765,19 @@ resource "aws_ecs_task_definition" "book_report_worker" {
   }
 }
 
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#MongoDB
 
 
+resource "aws_docdb_subnet_group" "project_subnet_group" {
+  name       = "project_subnet_group"
+  subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
 
-
-
-
-
-
+  tags = {
+    Project = var.project_tag_name
+  }
+}
 
 
 
