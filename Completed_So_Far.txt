@@ -51,3 +51,4 @@
 
 3-11-2026
 - created the docdb subnet group
+- created the cluster and cluster instance

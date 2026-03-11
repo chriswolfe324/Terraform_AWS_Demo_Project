@@ -29,3 +29,7 @@ variable "private1_subnet_cidr" {
 variable "private2_subnet_cidr" {
   type = string
 }
+
+variable "docdb_master_password" {
+  type = string
+}

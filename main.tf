@@ -426,7 +426,6 @@ resource "aws_iam_policy" "worker_policy" {
   })
 }
 
-
 resource "aws_iam_role" "app_server_role" {
   name = "app_server_role"
 
@@ -769,7 +768,6 @@ resource "aws_ecs_task_definition" "book_report_worker" {
 #-----------------------------------------------------------------
 #MongoDB
 
-
 resource "aws_docdb_subnet_group" "project_subnet_group" {
   name       = "project_subnet_group"
   subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
@@ -779,6 +777,23 @@ resource "aws_docdb_subnet_group" "project_subnet_group" {
   }
 }
 
+resource "aws_docdb_cluster" "docdb" {
+  cluster_identifier     = "my-docdb-cluster"
+  db_subnet_group_name   = aws_docdb_subnet_group.project_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.database.id]
+  engine                 = "docdb"
+  master_username        = "cwolfe"
+  master_password        = var.docdb_master_password
+  deletion_protection    = false
+  skip_final_snapshot    = true
+}
+
+resource "aws_docdb_cluster_instance" "cluster_instances" {
+  count              = 1
+  identifier         = "docdb-project-cluster-${count.index}"
+  cluster_identifier = aws_docdb_cluster.docdb.id
+  instance_class     = "db.t3.medium"
+}
 
 
 
