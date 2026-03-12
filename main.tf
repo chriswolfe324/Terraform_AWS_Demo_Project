@@ -768,8 +768,8 @@ resource "aws_ecs_task_definition" "book_report_worker" {
 #-----------------------------------------------------------------
 #RDS
 
-resource "aws_db_subnet_group" "project_subnet_group" {
-  name       = "project_subnet_group"
+resource "aws_db_subnet_group" "project_subnet_group1" {
+  name       = "project_subnet_group1"
   subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
 
   tags = {
@@ -782,12 +782,11 @@ resource "aws_db_instance" "rds_instance" {
   storage_type            = "gp2"
   allocated_storage       = 20
   backup_retention_period = 1
-  count                   = 1
-  identifier              = "db-project-cluster-${count.index}"
+  identifier              = "db-project-cluster"
   instance_class          = "db.t3.micro"
-  engine                  = "PostgreSQL"
+  engine                  = "postgres"
   publicly_accessible     = false
-  db_subnet_group_name    = aws_db_subnet_group.project_subnet_group.name
+  db_subnet_group_name    = aws_db_subnet_group.project_subnet_group1.name
   vpc_security_group_ids  = [aws_security_group.database.id]
   username                = "cwolfe"
   password                = var.db_master_password
@@ -795,18 +794,26 @@ resource "aws_db_instance" "rds_instance" {
   skip_final_snapshot     = true
 }
 
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#CloudWatch
 
+resource "aws_cloudwatch_metric_alarm" "ec2_cpu" {
+  alarm_name                = "ec2_cpu"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  period                    = 60
+  evaluation_periods        = 2
+  metric_name               = "CPUUtilization"
+  namespace                 = "AWS/EC2"
+  statistic                 = "Average"
+  threshold                 = 80
+  alarm_description         = "This metric monitors ec2 cpu utilization"
+  insufficient_data_actions = []
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.project_ASG.name
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  tags = {
+    Project = var.project_tag_name
+  }
+}
