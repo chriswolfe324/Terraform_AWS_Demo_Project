@@ -18,7 +18,7 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.public1_subnet_cidr
-  availability_zone = "us-east-1a"
+  availability_zone = "${var.project_region}a"
   tags = {
     Name    = "Public Subnet 1"
     Project = var.project_tag_name
@@ -28,7 +28,7 @@ resource "aws_subnet" "public1" {
 resource "aws_subnet" "public2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.public2_subnet_cidr
-  availability_zone = "us-east-1b"
+  availability_zone = "${var.project_region}b"
   tags = {
     Name    = "Public Subnet 2"
     Project = var.project_tag_name
@@ -42,7 +42,7 @@ resource "aws_subnet" "public2" {
 resource "aws_subnet" "private1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.private1_subnet_cidr
-  availability_zone = "us-east-1a"
+  availability_zone = "${var.project_region}a"
   tags = {
     Name    = "Private Subnet 1"
     Project = var.project_tag_name
@@ -52,7 +52,7 @@ resource "aws_subnet" "private1" {
 resource "aws_subnet" "private2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.private2_subnet_cidr
-  availability_zone = "us-east-1b"
+  availability_zone = "${var.project_region}b"
   tags = {
     Name    = "Private Subnet 2"
     Project = var.project_tag_name
@@ -555,7 +555,7 @@ resource "aws_launch_template" "app_server_launch_template" {
 
   instance_initiated_shutdown_behavior = "terminate"
 
-  instance_type = "t3.micro"
+  instance_type = var.instance_type
 
   key_name = "book-app-key" # you need to create this keypair
 
@@ -788,7 +788,7 @@ resource "aws_db_instance" "rds_instance" {
   publicly_accessible     = false
   db_subnet_group_name    = aws_db_subnet_group.project_subnet_group1.name
   vpc_security_group_ids  = [aws_security_group.database.id]
-  username                = "cwolfe"
+  username                = var.db_username
   password                = var.db_master_password
   deletion_protection     = false
   skip_final_snapshot     = true

@@ -30,6 +30,10 @@ variable "private2_subnet_cidr" {
   type = string
 }
 
+variable "db_username" {
+  type = string
+}
+
 variable "db_master_password" {
   type = string
 }
@@ -37,3 +41,8 @@ variable "db_master_password" {
 variable "account_id" {
   type = number
 }
+
+variable "instance_type" {
+  type = string
+}
+

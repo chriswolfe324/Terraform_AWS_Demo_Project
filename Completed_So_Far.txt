@@ -54,3 +54,7 @@
 - created the cluster and cluster instance
 - switched from documentDB to RDS due to a free plan restriction
 
+
+3-12-2026
+- added a CPU alarm for EC2 autoscale group
+- put some hard-coded values into variables
