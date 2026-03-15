@@ -16,4 +16,7 @@ git clone https://github.com/chriswolfe324/Terraform_AWS_Demo_Project.git
 cd Terraform_AWS_Demo_Project/
 
 npm install
-node app.js
+
+pm2 start app.js --name book-app
+pm2 startup systemd
+pm2 save
