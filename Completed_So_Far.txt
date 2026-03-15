@@ -61,3 +61,5 @@
 
 3-15-2026
 - configured the auto-scale group to automatically pull the application code from github and run it on launch
+- added pm2
+- finally got the application live and browsable on the internet
