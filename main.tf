@@ -573,6 +573,8 @@ resource "aws_launch_template" "app_server_launch_template" {
 
   vpc_security_group_ids = [aws_security_group.app_servers.id]
 
+  user_data = filebase64("${path.module}/app_server.sh")
+
   tag_specifications {
     resource_type = "instance"
     tags = {
