@@ -63,3 +63,8 @@
 - configured the auto-scale group to automatically pull the application code from github and run it on launch
 - added pm2
 - finally got the application live and browsable on the internet
+
+3-16-2026
+- built a background worker docker container and pushed the image to ECR
+- replaced the placeholder image with the actual ECR image I'll use
+- added lifecycle rule to prevent ECR repo from being destroyed 

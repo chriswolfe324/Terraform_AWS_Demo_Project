@@ -781,6 +781,10 @@ resource "aws_ecr_repository" "aws_project_background_worker" {
   name                 = "aws_project_background_worker"
   image_tag_mutability = "MUTABLE"
 
+  lifecycle {
+    prevent_destroy = true # so I don't have to keep pushing the image
+  }
+
   tags = {
     Project = var.project_tag_name
   }
