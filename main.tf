@@ -767,7 +767,7 @@ resource "aws_ecs_task_definition" "book_report_worker" {
   container_definitions = jsonencode([
     {
       name      = "report-worker"
-      image     = "public.ecr.aws/docker/library/node:20" # placeholder
+      image     = "150168148126.dkr.ecr.us-east-1.amazonaws.com/aws_project_background_worker:latest"
       essential = true
     },
   ])
