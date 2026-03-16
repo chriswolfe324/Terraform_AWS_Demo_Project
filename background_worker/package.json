@@ -1,0 +1,6 @@
+{
+    "name": "aws-project-worker",
+    "version": "1.0.0",
+    "main": "worker.js",
+    "dependencies": {}
+}

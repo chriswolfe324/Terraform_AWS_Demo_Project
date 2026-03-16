@@ -777,6 +777,15 @@ resource "aws_ecs_task_definition" "book_report_worker" {
   }
 }
 
+resource "aws_ecr_repository" "aws_project_background_worker" {
+  name                 = "aws_project_background_worker"
+  image_tag_mutability = "MUTABLE"
+
+  tags = {
+    Project = var.project_tag_name
+  }
+}
+
 #-----------------------------------------------------------------
 #-----------------------------------------------------------------
 #RDS
