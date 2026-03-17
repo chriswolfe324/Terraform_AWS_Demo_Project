@@ -71,3 +71,6 @@
 
 3-17-2026
 - added lambda permission to app server IAM role
+- added AWS SDK to app
+- connected app to call lambda and send report
+- created report status page
