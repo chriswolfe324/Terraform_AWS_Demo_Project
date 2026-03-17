@@ -67,4 +67,7 @@
 3-16-2026
 - built a background worker docker container and pushed the image to ECR
 - replaced the placeholder image with the actual ECR image I'll use
-- added lifecycle rule to prevent ECR repo from being destroyed 
+- added lifecycle rule to prevent ECR repo from being destroyed
+
+3-17-2026
+- added lambda permission to app server IAM role

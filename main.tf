@@ -375,6 +375,13 @@ resource "aws_iam_policy" "app_policy" {
         ]
         Effect   = "Allow"
         Resource = "${aws_s3_bucket.project_bucket.arn}/*"
+      },
+      {
+        Action = [
+          "lambda:InvokeFunction",
+        ]
+        Effect = "Allow"
+        Resource = "aws_lambda_function.project_lambda_function.arn"
       }
     ]
   })
