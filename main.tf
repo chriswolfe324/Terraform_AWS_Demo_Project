@@ -223,9 +223,9 @@ resource "aws_security_group_rule" "public_entry_https" {
 resource "aws_security_group_rule" "public_entry_to_app" {
   type                     = "egress"
   security_group_id        = aws_security_group.public_entry.id
-  from_port                = 0
-  to_port                  = 0
-  protocol                 = "-1"
+  from_port                = 3000
+  to_port                  = 3000
+  protocol                 = "tcp"
   source_security_group_id = aws_security_group.app_servers.id
 }
 # -----------------------------------------------------------------
@@ -244,9 +244,9 @@ resource "aws_security_group_rule" "app_to_public_entry" {
 resource "aws_security_group_rule" "app_to_database" {
   type                     = "egress"
   security_group_id        = aws_security_group.app_servers.id
-  from_port                = 0
-  to_port                  = 0
-  protocol                 = "-1"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
   source_security_group_id = aws_security_group.database.id
 }
 
@@ -275,9 +275,9 @@ resource "aws_security_group_rule" "app_to_external" {
 resource "aws_security_group_rule" "from_app_to_database" {
   type                     = "ingress"
   security_group_id        = aws_security_group.database.id
-  from_port                = 0
-  to_port                  = 0
-  protocol                 = "-1"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
   source_security_group_id = aws_security_group.app_servers.id
 }
 
@@ -285,9 +285,9 @@ resource "aws_security_group_rule" "from_app_to_database" {
 resource "aws_security_group_rule" "from_workers_to_database" {
   type                     = "ingress"
   security_group_id        = aws_security_group.database.id
-  from_port                = 0
-  to_port                  = 0
-  protocol                 = "-1"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
   source_security_group_id = aws_security_group.background_workers.id
 }
 
@@ -787,10 +787,7 @@ resource "aws_ecs_task_definition" "book_report_worker" {
 resource "aws_ecr_repository" "aws_project_background_worker" {
   name                 = "aws_project_background_worker"
   image_tag_mutability = "MUTABLE"
-
-  lifecycle {
-    prevent_destroy = true # so I don't have to keep pushing the image
-  }
+  force_delete         = true
 
   tags = {
     Project = var.project_tag_name
