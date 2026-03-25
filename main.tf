@@ -380,8 +380,8 @@ resource "aws_iam_policy" "app_policy" {
         Action = [
           "lambda:InvokeFunction",
         ]
-        Effect = "Allow"
-        Resource = "aws_lambda_function.project_lambda_function.arn"
+        Effect   = "Allow"
+        Resource = aws_lambda_function.project_lambda_function.arn
       }
     ]
   })
@@ -400,14 +400,14 @@ resource "aws_iam_policy" "lambda_policy" {
           "ecs:RunTask",
         ]
         Effect   = "Allow"
-        Resource = "*"
+        Resource = aws_ecs_task_definition.book_report_worker.arn
       },
       {
         Action = [
           "iam:PassRole",
         ]
         Effect   = "Allow"
-        Resource = "*"
+        Resource = [aws_iam_role.ecs_task_execution_role.arn, aws_iam_role.background_workers_role.arn]
       }
     ]
   })
@@ -564,7 +564,7 @@ resource "aws_launch_template" "app_server_launch_template" {
 
   instance_type = var.instance_type
 
-  key_name = "book-app-key" # you need to create this keypair
+  key_name = "book-app-key"
 
   metadata_options {
     http_endpoint               = "enabled"

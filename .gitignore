@@ -28,3 +28,6 @@ terraform.rc
 # Other files
 project_readme.txt
 todo.txt
+
+
+node_modules/
