@@ -8,7 +8,16 @@ exports.handler = async (event) => {
 
   const params = {
     cluster: "project-ecs-cluster",
-    taskDefinition: "book_report_worker"
+    taskDefinition: "book_report_worker",
+    launchType: "FARGATE",
+
+    networkConfiguration: {
+      awsvpcConfiguration: {
+        subnets: ["subnet-01d64dfcafae59863", "subnet-01d64dfcafae59863"],
+        securityGroups: ["sg-06fb7f50dd1e48862"],
+        assignPublicIp: "DISABLED"
+      }
+    }
   };
 
   const command = new RunTaskCommand(params);
